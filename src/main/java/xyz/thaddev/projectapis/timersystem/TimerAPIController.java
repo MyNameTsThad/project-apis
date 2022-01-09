@@ -3,27 +3,22 @@ package xyz.thaddev.projectapis.timersystem;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.thaddev.projectapis.timersystem.exceptions.InvalidTimerLengthException;
 import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-public class TimerSystemAPIController {
+public class TimerAPIController {
     private final TimerRepository timerRepository;
-    private final TimerInstanceRepository timerInstanceRepository;
 
-    public TimerSystemAPIController(TimerRepository timerRepository, TimerInstanceRepository timerInstanceRepository) {
+    public TimerAPIController(TimerRepository timerRepository) {
         this.timerRepository = timerRepository;
-        this.timerInstanceRepository = timerInstanceRepository;
     }
 
     @GetMapping("/api-v1/timer/getall")
@@ -42,7 +37,7 @@ public class TimerSystemAPIController {
     @GetMapping("/api-v1/timer/get")
     private Timer getTimer(@RequestParam int id){
         return timerRepository.findById(id)
-                .orElseThrow(() -> new TimerNotFoundException(id));
+                .orElseThrow(() -> new TimerNotFoundException(id, false));
     }
 
     @PatchMapping("/api-v1/timer/set")
@@ -66,46 +61,9 @@ public class TimerSystemAPIController {
         if ((Object) timerRepository.findById(id) != Optional.empty()){
             timerRepository.deleteById(id);
         }else{
-            throw new TimerNotFoundException(id);
+            throw new TimerNotFoundException(id, false);
         }
     }
 
-    //instances
 
-    @GetMapping("/api-v1/timer/instances/getall")
-    private List<TimerInstance> getAllTimerInstances(){
-        return timerInstanceRepository.findAll();
-    }
-
-    @PostMapping("/api-v1/timer/instances/new")
-    private TimerInstance newTimerInstance(@RequestParam int timerId, @RequestParam(defaultValue = "false") boolean isComputerControl){
-        Timer timer = getTimer(timerId);
-        return timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
-    }
-
-    @GetMapping("/api-v1/timer/get")
-    private TimerInstance getTimerInstance(@RequestParam int id){
-        return timerInstanceRepository.findById(id)
-                .orElseThrow(() -> new TimerNotFoundException(id));
-    }
-
-    @PatchMapping("/api-v1/timer/instances/pause")
-    private TimerInstance pauseTimerInstance(@RequestParam int id){
-        return timerInstanceRepository.findById(id)
-                .map(timerInstance -> {
-                    timerInstance.setPaused(true);
-                    return timerInstanceRepository.save(timerInstance);
-                })
-                .orElseThrow(() -> new TimerNotFoundException(id));
-    }
-
-    @PatchMapping("/api-v1/timer/instances/start")
-    private TimerInstance startTimerInstance(@RequestParam int id){
-        return timerInstanceRepository.findById(id)
-                .map(timerInstance -> {
-                    timerInstance.setPaused(false);
-                    return timerInstanceRepository.save(timerInstance);
-                })
-                .orElseThrow(() -> new TimerNotFoundException(id));
-    }
 }
