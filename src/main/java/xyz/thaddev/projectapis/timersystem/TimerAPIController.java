@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.timersystem.exceptions.InvalidTimerLengthException;
 import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
 
@@ -65,5 +66,10 @@ public class TimerAPIController {
         }
     }
 
-
+    @DeleteMapping("/api-v1/timer/delete/all")
+    private void deleteAll(@RequestParam String authPassword){
+        if (authPassword.equals(ProjectApisApplication.authPassword)){
+            timerRepository.deleteAll();
+        }
+    }
 }

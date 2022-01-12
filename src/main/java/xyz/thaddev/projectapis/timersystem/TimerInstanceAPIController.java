@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
 
 import java.util.List;
@@ -91,6 +92,13 @@ public class TimerInstanceAPIController {
             timerInstanceRepository.deleteById(id);
         }else{
             throw new TimerNotFoundException(id, true);
+        }
+    }
+
+    @DeleteMapping("/api-v1/timer/instances/delete/all")
+    private void deleteAll(@RequestParam String authPassword){
+        if (authPassword.equals(ProjectApisApplication.authPassword)){
+            timerInstanceRepository.deleteAll();
         }
     }
 
