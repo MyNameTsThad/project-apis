@@ -75,11 +75,11 @@ public class TimerInstanceAPIController {
     }
 
     @PatchMapping("/api-v1/timer/instances/computercontrol")
-    private TimerInstance setTimerInstanceComputerControl(@RequestParam int id){
+    private TimerInstance setTimerInstanceComputerControl(@RequestParam int id, @RequestParam(defaultValue = "true") boolean computerControl){
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
-                    disableAllControllingTimers();
-                    timerInstance.setComputerControl(true);
+                    if (computerControl) disableAllControllingTimers();
+                    timerInstance.setComputerControl(computerControl);
                     return timerInstanceRepository.save(timerInstance);
                 })
                 .orElseThrow(() -> new TimerNotFoundException(id, true));
