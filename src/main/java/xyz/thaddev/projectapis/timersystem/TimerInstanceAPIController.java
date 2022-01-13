@@ -1,5 +1,7 @@
 package xyz.thaddev.projectapis.timersystem;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,12 +33,13 @@ public class TimerInstanceAPIController {
     private TimerInstance newTimerInstance(@RequestParam int timerId, @RequestParam(defaultValue = "false") boolean isComputerControl){
         String uri = "http://localhost:8080/api-v1/timer/get?id=" + timerId;
         RestTemplate template = new RestTemplate();
-        Timer timer = template.getForObject(uri, Timer.class);
-        if (timer != null){
+        ResponseEntity<Timer> timer = template.getForEntity(uri, Timer.class);
+        if (timer.getStatusCode() != HttpStatus.NOT_FOUND && timer.getBody() != null){
             if (isComputerControl) disableAllControllingTimers();
-            return timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
+            return timerInstanceRepository.save(new TimerInstance(timer.getBody(), isComputerControl));
+        }else{
+            throw new TimerNotFoundException(timerId, false);
         }
-        throw new TimerNotFoundException(timerId, false);
     }
 
     @GetMapping("/api-v1/timer/instances/get")
