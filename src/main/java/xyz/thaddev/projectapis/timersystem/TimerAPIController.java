@@ -14,6 +14,8 @@ import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.timersystem.exceptions.InvalidTimerLengthException;
 import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -136,10 +138,13 @@ public class TimerAPIController {
     public void saveToFile() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllTimers());
-        FileWriter file = new FileWriter("/var/lib/projectapis/db/current.json");;
+        File path = new File("/var/lib/projectapis/db/TimerRepository-current.json");
+        path.getParentFile().mkdirs();
+        path.createNewFile();
+        FileWriter file = new FileWriter(path);
         try {
             file.write(json);
-            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: /var/lib/projectapis/db/timerRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: /var/lib/projectapis/db/TimerRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
