@@ -2,6 +2,7 @@ package xyz.thaddev.projectapis.timersystem;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -139,11 +140,9 @@ public class TimerAPIController {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllTimers());
         File path = new File("/var/lib/projectapis/db/TimerRepository-current.json");
-        path.getParentFile().mkdirs();
-        path.createNewFile();
-        FileWriter file = new FileWriter(path);
+        FileOutputStream file = FileUtils.openOutputStream(path);
         try {
-            file.write(json);
+            file.write(json.getBytes());
             ProjectApisApplication.instance.logger.info("Saved Timer Repository to: /var/lib/projectapis/db/TimerRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
