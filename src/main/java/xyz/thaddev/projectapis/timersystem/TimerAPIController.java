@@ -139,11 +139,12 @@ public class TimerAPIController {
     public void saveToFile() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllTimers());
-        File path = new File("/var/lib/projectapis/db/TimerRepository-current.json");
+        String home = System.getenv("user.home");
+        File path = new File(home + "/projectapis/db/TimerRepository-current.json");
         FileOutputStream file = FileUtils.openOutputStream(path);
         try {
             file.write(json.getBytes());
-            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: /var/lib/projectapis/db/TimerRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: " + home + "/projectapis/db/TimerRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
