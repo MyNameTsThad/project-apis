@@ -1,7 +1,10 @@
 package xyz.thaddev.projectapis.timersystem;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +31,31 @@ import java.util.Optional;
 public class TimerAPIController {
     private final TimerRepository timerRepository;
 
-    public TimerAPIController(TimerRepository timerRepository) {
+    public TimerAPIController(TimerRepository timerRepository) throws IOException {
         this.timerRepository = timerRepository;
+        ProjectApisApplication.instance.setTimerAPIController(this);
+        new Thread("loadFromFile") {
+            @Override
+            public void run() {
+                try {
+                    readFromFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @GetMapping("/api-v1/timer/getall")
-    private List<Timer> getAllTimers(){
+    public List<Timer> getAllTimers() {
         return timerRepository.findAll();
     }
 
     @PostMapping("/api-v1/timer/new")
-    private Timer newTimer(@RequestBody Timer newTimer){
-        if (newTimer.getLengthTime() > 0){
+    public Timer newTimer(@RequestBody Timer newTimer) {
+        if (newTimer.getLengthTime() > 0) {
             Timer saved = timerRepository.save(newTimer);
-            new Thread("saveToFile"){
+            new Thread("saveToFile") {
                 @Override
                 public void run() {
                     try {
@@ -55,19 +71,19 @@ public class TimerAPIController {
     }
 
     @GetMapping("/api-v1/timer/get")
-    private Timer getTimer(@RequestParam int id){
+    public Timer getTimer(@RequestParam int id) {
         return timerRepository.findById(id)
                 .orElseThrow(() -> new TimerNotFoundException(id, false));
     }
 
     @PatchMapping("/api-v1/timer/set")
-    private Timer changeTimer(@RequestBody Timer newTimer, @RequestParam int id){
-        if (newTimer.getLengthTime() > 0){
+    public Timer changeTimer(@RequestBody Timer newTimer, @RequestParam int id) {
+        if (newTimer.getLengthTime() > 0) {
             return timerRepository.findById(id)
                     .map(timer -> {
                         timer.setLengthTime(newTimer.getLengthTime());
                         Timer saved = timerRepository.save(timer);
-                        new Thread("saveToFile"){
+                        new Thread("saveToFile") {
                             @Override
                             public void run() {
                                 try {
@@ -82,7 +98,7 @@ public class TimerAPIController {
                     .orElseGet(() -> {
                         newTimer.setId(id);
                         Timer saved = timerRepository.save(newTimer);
-                        new Thread("saveToFile"){
+                        new Thread("saveToFile") {
                             @Override
                             public void run() {
                                 try {
@@ -99,10 +115,10 @@ public class TimerAPIController {
     }
 
     @DeleteMapping("/api-v1/timer/delete")
-    private void deleteTimer(@RequestParam int id){
-        if ((Object) timerRepository.findById(id) != Optional.empty()){
+    public void deleteTimer(@RequestParam int id) {
+        if ((Object) timerRepository.findById(id) != Optional.empty()) {
             timerRepository.deleteById(id);
-            new Thread("saveToFile"){
+            new Thread("saveToFile") {
                 @Override
                 public void run() {
                     try {
@@ -112,16 +128,16 @@ public class TimerAPIController {
                     }
                 }
             }.start();
-        }else{
+        } else {
             throw new TimerNotFoundException(id, false);
         }
     }
 
     @DeleteMapping("/api-v1/timer/delete/all")
-    private void deleteAll(@RequestParam String authPassword){
-        if (authPassword.equals(ProjectApisApplication.authPassword)){
+    public void deleteAll(@RequestParam String authPassword) {
+        if (authPassword.equals(ProjectApisApplication.authPassword)) {
             timerRepository.deleteAll();
-            new Thread("saveToFile"){
+            new Thread("saveToFile") {
                 @Override
                 public void run() {
                     try {
@@ -131,7 +147,7 @@ public class TimerAPIController {
                     }
                 }
             }.start();
-        }else{
+        } else {
             throw new PermissionDeniedException();
         }
     }
@@ -139,15 +155,14 @@ public class TimerAPIController {
     public void saveToFile() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllTimers());
-        String home = System.getProperty("user.home");
-        File path = new File(home + "/projectapis/db/TimerRepository-current.json");
+        File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
         FileOutputStream file = FileUtils.openOutputStream(path);
         try {
             file.write(json.getBytes());
-            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: " + home + "/projectapis/db/TimerRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 file.flush();
                 file.close();
@@ -155,5 +170,15 @@ public class TimerAPIController {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void readFromFile() throws IOException {
+        File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+        String json = FileUtils.readFileToString(path);
+
+        //List<Timer> result = new ObjectMapper().readValue(json, new TypeReference<List<Timer>>(){});
+        List<Timer> result = new Gson().fromJson(json, new TypeToken<List<Timer>>() {}.getType());
+        timerRepository.saveAll(result);
+        ProjectApisApplication.instance.logger.info("Loaded Timer Repository from: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
     }
 }

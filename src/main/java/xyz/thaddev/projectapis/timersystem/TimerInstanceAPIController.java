@@ -22,37 +22,33 @@ public class TimerInstanceAPIController {
 
     public TimerInstanceAPIController(TimerInstanceRepository timerInstanceRepository) {
         this.timerInstanceRepository = timerInstanceRepository;
+        ProjectApisApplication.instance.setTimerInstanceAPIController(this);
     }
 
     @GetMapping("/api-v1/timer/instances/getall")
-    private List<TimerInstance> getAllTimerInstances(){
+    private List<TimerInstance> getAllTimerInstances() {
         return timerInstanceRepository.findAll();
     }
 
     @PostMapping("/api-v1/timer/instances/new")
-    private TimerInstance newTimerInstance(@RequestParam int timerId, @RequestParam(defaultValue = "false") boolean isComputerControl){
-        String uri = "http://localhost:8080/api-v1/timer/get?id=" + timerId;
-        RestTemplate template = new RestTemplate();
-        ResponseEntity<Timer> timer = template.getForEntity(uri, Timer.class);
-        if (timer.getStatusCode() != HttpStatus.NOT_FOUND && timer.getBody() != null){
-            if (isComputerControl) disableAllControllingTimers();
-            return timerInstanceRepository.save(new TimerInstance(timer.getBody(), isComputerControl));
-        }else{
-            throw new TimerNotFoundException(timerId, false);
-        }
+    private TimerInstance newTimerInstance(@RequestParam int timerId, @RequestParam(defaultValue = "false") boolean isComputerControl) {
+        Timer timer = ProjectApisApplication.instance.getTimerAPIController().getTimer(timerId);
+
+        if (isComputerControl) disableAllControllingTimers();
+        return timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
     }
 
     @GetMapping("/api-v1/timer/instances/get")
-    private TimerInstance getTimerInstance(@RequestParam int id){
+    private TimerInstance getTimerInstance(@RequestParam int id) {
         return timerInstanceRepository.findById(id)
                 .orElseThrow(() -> new TimerNotFoundException(id, true));
     }
 
     @GetMapping("/api-v1/timer/instances/getcontrolling")
-    private TimerInstance getCurrentControllingTimerInstance(){
+    private TimerInstance getCurrentControllingTimerInstance() {
         List<TimerInstance> instances = getAllTimerInstances();
         for (TimerInstance instance : instances) {
-            if (instance.isComputerControl()){
+            if (instance.isComputerControl()) {
                 return instance;
             }
         }
@@ -60,7 +56,7 @@ public class TimerInstanceAPIController {
     }
 
     @PatchMapping("/api-v1/timer/instances/pause")
-    private TimerInstance pauseTimerInstance(@RequestParam int id){
+    private TimerInstance pauseTimerInstance(@RequestParam int id) {
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
                     timerInstance.setPaused(true);
@@ -70,7 +66,7 @@ public class TimerInstanceAPIController {
     }
 
     @PatchMapping("/api-v1/timer/instances/start")
-    private TimerInstance startTimerInstance(@RequestParam int id){
+    private TimerInstance startTimerInstance(@RequestParam int id) {
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
                     timerInstance.setPaused(false);
@@ -80,7 +76,7 @@ public class TimerInstanceAPIController {
     }
 
     @PatchMapping("/api-v1/timer/instances/computercontrol")
-    private TimerInstance setTimerInstanceComputerControl(@RequestParam int id, @RequestParam(defaultValue = "true") boolean computerControl){
+    private TimerInstance setTimerInstanceComputerControl(@RequestParam int id, @RequestParam(defaultValue = "true") boolean computerControl) {
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
                     if (computerControl) disableAllControllingTimers();
@@ -91,24 +87,24 @@ public class TimerInstanceAPIController {
     }
 
     @DeleteMapping("/api-v1/timer/instances/delete")
-    private void deleteTimerInstance(@RequestParam int id){
-        if ((Object) timerInstanceRepository.findById(id) != Optional.empty()){
+    private void deleteTimerInstance(@RequestParam int id) {
+        if ((Object) timerInstanceRepository.findById(id) != Optional.empty()) {
             timerInstanceRepository.deleteById(id);
-        }else{
+        } else {
             throw new TimerNotFoundException(id, true);
         }
     }
 
     @DeleteMapping("/api-v1/timer/instances/delete/all")
-    private void deleteAll(@RequestParam String authPassword){
-        if (authPassword.equals(ProjectApisApplication.authPassword)){
+    private void deleteAll(@RequestParam String authPassword) {
+        if (authPassword.equals(ProjectApisApplication.authPassword)) {
             timerInstanceRepository.deleteAll();
-        }else{
+        } else {
             throw new PermissionDeniedException();
         }
     }
 
-    private void disableAllControllingTimers(){
+    private void disableAllControllingTimers() {
         List<TimerInstance> instances = getAllTimerInstances();
         for (TimerInstance instance : instances) {
             int id = instance.getId();

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.CommandNotFoundException;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.EmptyCommandException;
 import xyz.thaddev.projectapis.timersystem.Timer;
@@ -21,6 +22,7 @@ public class CommandAPIController {
 
     public CommandAPIController(CommandStack stack) {
         this.stack = stack;
+        ProjectApisApplication.instance.setCommandAPIController(this);
     }
 
     //controlled
