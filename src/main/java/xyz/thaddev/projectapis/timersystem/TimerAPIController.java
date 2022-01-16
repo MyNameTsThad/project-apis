@@ -173,12 +173,23 @@ public class TimerAPIController {
     }
 
     public void readFromFile() throws IOException {
-        File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
-        String json = FileUtils.readFileToString(path);
+        try {
+            File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+            String json = FileUtils.readFileToString(path);
 
-        //List<Timer> result = new ObjectMapper().readValue(json, new TypeReference<List<Timer>>(){});
-        List<Timer> result = new Gson().fromJson(json, new TypeToken<List<Timer>>() {}.getType());
-        timerRepository.saveAll(result);
-        ProjectApisApplication.instance.logger.info("Loaded Timer Repository from: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+            //List<Timer> result = new ObjectMapper().readValue(json, new TypeReference<List<Timer>>(){});
+            List<Timer> result = new Gson().fromJson(json, new TypeToken<List<Timer>>() {}.getType());
+            timerRepository.saveAll(result);
+            ProjectApisApplication.instance.logger.info("Loaded Timer Repository from: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+        }catch (IOException e){
+            if (e.getMessage().equals("File '/home/iwant2tryhard/somediscordbot/TimerRepository-current.json' does not exist")){
+                File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+                ProjectApisApplication.instance.logger.warn("Storage Files not found; Creating empty files.");
+                FileOutputStream file = FileUtils.openOutputStream(path);
+                file.close();
+                ProjectApisApplication.instance.logger.warn("Successfully Created Storage files.");
+            }
+        }
+
     }
 }
