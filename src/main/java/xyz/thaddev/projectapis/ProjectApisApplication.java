@@ -11,6 +11,7 @@ import xyz.thaddev.projectapis.timersystem.TimerInstanceAPIController;
 @SpringBootApplication
 public class ProjectApisApplication {
 	public static final String authPassword = "<Password>";
+	public static final String computerControlAuthPassword = "<Password>";
 	public static ProjectApisApplication instance;
 
 	public Logger logger = LoggerFactory.getLogger(ProjectApisApplication.class);

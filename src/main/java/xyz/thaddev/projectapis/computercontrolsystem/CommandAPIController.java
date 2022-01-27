@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.CommandNotFoundException;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.EmptyCommandException;
-import xyz.thaddev.projectapis.timersystem.Timer;
-import xyz.thaddev.projectapis.timersystem.exceptions.InvalidTimerLengthException;
-import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,4 +58,9 @@ public class CommandAPIController {
         return stack.save(newCommand);
     }
 
+    //auth
+    @PostMapping("/api-v1/computercontrol/auth")
+    private boolean isPasswordCorrect(@RequestParam String password){
+        return password.equals(ProjectApisApplication.computerControlAuthPassword);
+    }
 }
