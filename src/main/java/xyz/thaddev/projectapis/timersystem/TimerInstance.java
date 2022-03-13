@@ -15,7 +15,8 @@ public class TimerInstance {
 
     private int parentTimerId;
     private long startTime;
-    private long timeLeft;
+    private long timePaused;
+    private long endTime;
     private boolean isPaused;
 
     //special purposes
@@ -26,18 +27,39 @@ public class TimerInstance {
 
     public TimerInstance(Timer parentTimer, boolean isComputerControl) {
         this.parentTimerId = parentTimer.getId();
-        this.startTime = new Date().getTime();
-        this.timeLeft = parentTimer.getLengthTime();
+        this.startTime = System.currentTimeMillis();
+        this.endTime = startTime + parentTimer.getLengthTime();
+        this.timePaused = 0;
         this.isComputerControl = isComputerControl;
         this.isPaused = false;
     }
 
     public TimerInstance(Timer parentTimer, boolean isComputerControl, boolean isPaused) {
         this.parentTimerId = parentTimer.getId();
-        this.startTime = new Date().getTime();
-        this.timeLeft = parentTimer.getLengthTime();
+        this.startTime = System.currentTimeMillis();
+        this.endTime = startTime + parentTimer.getLengthTime();
+        this.timePaused = 0;
         this.isComputerControl = isComputerControl;
         this.isPaused = isPaused;
+    }
+
+    //INTERNAL USE ONLY
+    public TimerInstance(int parentTimerId, long startTime, long timePaused, long endTime, boolean isPaused, boolean isComputerControl) {
+        this.parentTimerId = parentTimerId;
+        this.startTime = startTime;
+        this.timePaused = timePaused;
+        this.endTime = endTime;
+        this.isPaused = isPaused;
+        this.isComputerControl = isComputerControl;
+    }
+
+    public TimerInstance(int parentTimerId, long startTime, long timeLeft, boolean isPaused, boolean isComputerControl) {
+        this.parentTimerId = parentTimerId;
+        this.startTime = startTime;
+        this.timePaused = 0;
+        this.endTime = startTime + timeLeft;
+        this.isPaused = isPaused;
+        this.isComputerControl = isComputerControl;
     }
 
     public int getId() {
@@ -64,14 +86,6 @@ public class TimerInstance {
         this.startTime = startTime;
     }
 
-    public long getTimeLeft() {
-        return timeLeft;
-    }
-
-    public void setTimeLeft(long timeLeft) {
-        this.timeLeft = timeLeft;
-    }
-
     public boolean isPaused() {
         return isPaused;
     }
@@ -88,17 +102,33 @@ public class TimerInstance {
         isComputerControl = computerControl;
     }
 
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public long getTimePaused() {
+        return timePaused;
+    }
+
+    public void setTimePaused(long timePaused) {
+        this.timePaused = timePaused;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TimerInstance that = (TimerInstance) o;
-        return id == that.id && parentTimerId == that.parentTimerId && startTime == that.startTime && timeLeft == that.timeLeft && isPaused == that.isPaused && isComputerControl == that.isComputerControl;
+        return id == that.id && parentTimerId == that.parentTimerId && startTime == that.startTime && timePaused == that.timePaused && endTime == that.endTime && isPaused == that.isPaused && isComputerControl == that.isComputerControl;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, parentTimerId, startTime, timeLeft, isPaused, isComputerControl);
+        return Objects.hash(id, parentTimerId, startTime, timePaused, endTime, isPaused, isComputerControl);
     }
 
     @Override
@@ -107,7 +137,8 @@ public class TimerInstance {
                 "id=" + id +
                 ", parentTimerId=" + parentTimerId +
                 ", startTime=" + startTime +
-                ", timeLeft=" + timeLeft +
+                ", timePaused=" + timePaused +
+                ", endTime=" + endTime +
                 ", isPaused=" + isPaused +
                 ", isComputerControl=" + isComputerControl +
                 '}';

@@ -115,4 +115,19 @@ public class TimerInstanceAPIController {
                     });
         }
     }
+
+    public void tickAll(){
+        //ProjectApisApplication.instance.logger.info("Tick all");
+        List<TimerInstance> instances = getAllTimerInstances();
+        for (TimerInstance instance : instances) {
+            if (instance.isPaused()) {
+                timerInstanceRepository.findById(instance.getId())
+                        .map(timerInstance -> {
+                            timerInstance.setTimePaused(timerInstance.getTimePaused() + 1000);
+                            timerInstance.setEndTime(timerInstance.getEndTime() + 1000);
+                            return timerInstanceRepository.save(timerInstance);
+                        });
+            }
+        }
+    }
 }
