@@ -14,9 +14,14 @@ public class StatusResponse {
     public StatusResponse() {
     }
 
-    public StatusResponse(long id, String status) {
+    public StatusResponse(String status) {
         //id will be random positive long
         this.id = Math.abs(new Random().nextLong());
+        this.status = status;
+    }
+
+    public StatusResponse(long id, String status) {
+        this.id = id;
         this.status = status;
     }
 
