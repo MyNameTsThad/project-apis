@@ -35,7 +35,9 @@ public class TimerInstanceAPIController {
         Timer timer = ProjectApisApplication.instance.getTimerAPIController().getTimer(timerId);
 
         if (isComputerControl) disableAllControllingTimers();
-        return timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
+        TimerInstance timerInstance = timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
+        ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
+        return timerInstance;
     }
 
     @GetMapping("/api-v1/timer/instances/get")
@@ -60,7 +62,9 @@ public class TimerInstanceAPIController {
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
                     timerInstance.setPaused(true);
-                    return timerInstanceRepository.save(timerInstance);
+                    TimerInstance updated = timerInstanceRepository.save(timerInstance);
+                    if (timerInstance.isComputerControl()) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged(true);
+                    return updated;
                 })
                 .orElseThrow(() -> new TimerNotFoundException(id, true));
     }
@@ -70,7 +74,9 @@ public class TimerInstanceAPIController {
         return timerInstanceRepository.findById(id)
                 .map(timerInstance -> {
                     timerInstance.setPaused(false);
-                    return timerInstanceRepository.save(timerInstance);
+                    TimerInstance updatedInstance = timerInstanceRepository.save(timerInstance);
+                    if (timerInstance.isComputerControl()) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged(true);
+                    return updatedInstance;
                 })
                 .orElseThrow(() -> new TimerNotFoundException(id, true));
     }
@@ -81,7 +87,9 @@ public class TimerInstanceAPIController {
                 .map(timerInstance -> {
                     if (computerControl) disableAllControllingTimers();
                     timerInstance.setComputerControl(computerControl);
-                    return timerInstanceRepository.save(timerInstance);
+                    TimerInstance saved = timerInstanceRepository.save(timerInstance);
+                    ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
+                    return saved;
                 })
                 .orElseThrow(() -> new TimerNotFoundException(id, true));
     }
@@ -89,6 +97,8 @@ public class TimerInstanceAPIController {
     @DeleteMapping("/api-v1/timer/instances/delete")
     private void deleteTimerInstance(@RequestParam int id) {
         if ((Object) timerInstanceRepository.findById(id) != Optional.empty()) {
+            if (timerInstanceRepository.findById(id).isPresent() && timerInstanceRepository.findById(id).get().isComputerControl())
+                ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);;
             timerInstanceRepository.deleteById(id);
         } else {
             throw new TimerNotFoundException(id, true);
@@ -99,6 +109,7 @@ public class TimerInstanceAPIController {
     private void deleteAll(@RequestParam String authPassword) {
         if (authPassword.equals(ProjectApisApplication.authPassword)) {
             timerInstanceRepository.deleteAll();
+            ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
         } else {
             throw new PermissionDeniedException();
         }
@@ -111,12 +122,14 @@ public class TimerInstanceAPIController {
             timerInstanceRepository.findById(id)
                     .map(timerInstance -> {
                         timerInstance.setComputerControl(false);
-                        return timerInstanceRepository.save(timerInstance);
+                        TimerInstance saved = timerInstanceRepository.save(timerInstance);
+                        ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
+                        return saved;
                     });
         }
     }
 
-    public void tickAll(){
+    public void tickAll(boolean is10thSecond) {
         //ProjectApisApplication.instance.logger.info("Tick all");
         List<TimerInstance> instances = getAllTimerInstances();
         for (TimerInstance instance : instances) {
@@ -125,7 +138,9 @@ public class TimerInstanceAPIController {
                         .map(timerInstance -> {
                             timerInstance.setTimePaused(timerInstance.getTimePaused() + 1000);
                             timerInstance.setEndTime(timerInstance.getEndTime() + 1000);
-                            return timerInstanceRepository.save(timerInstance);
+                            TimerInstance saved = timerInstanceRepository.save(timerInstance);
+                            if (is10thSecond && getCurrentControllingTimerInstance() != null) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged(true);
+                            return saved;
                         });
             }
         }

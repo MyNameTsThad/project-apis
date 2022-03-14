@@ -32,12 +32,14 @@ public class CommandAPIController {
     @DeleteMapping("/api-v1/computercontrol/clearstack")
     private void clearCommandStack(){
         stack.deleteAll();
+        ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
     }
 
     @DeleteMapping("/api-v1/computercontrol/delete")
     private void deleteCommand(@RequestParam int id){
         if ((Object) stack.findById(id) != Optional.empty()){
             stack.deleteById(id);
+            ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
         }else{
             throw new CommandNotFoundException(id);
         }
@@ -46,8 +48,10 @@ public class CommandAPIController {
     //controlling
 
     @GetMapping("/api-v1/computercontrol/ping")
-    private int controllerPing(){
-        return 0;
+    private StatusResponse controllerPing(){
+        StatusResponse statusResponse = ProjectApisApplication.instance.getStatusResponseManager().getResponse();
+        ProjectApisApplication.instance.getStatusResponseManager().clear();
+        return statusResponse;
     }
 
     @PostMapping("/api-v1/computercontrol/add")
@@ -55,7 +59,9 @@ public class CommandAPIController {
         if (newCommand.getExecCommand().isBlank() || newCommand.getExecCommand().isEmpty()){
             throw new EmptyCommandException(newCommand.getId());
         }
-        return stack.save(newCommand);
+        Command command = stack.save(newCommand);
+        ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
+        return command;
     }
 
     //auth
