@@ -2,6 +2,8 @@ package xyz.thaddev.projectapis.computercontrolsystem;
 
 import xyz.thaddev.projectapis.ProjectApisApplication;
 
+import java.util.Random;
+
 public class StatusResponseManager {
     private StatusResponse response;
 
@@ -24,6 +26,7 @@ public class StatusResponseManager {
     }
 
     public StatusResponse getResponse() {
+        genId();
         return response;
     }
 
@@ -59,5 +62,9 @@ public class StatusResponseManager {
                 (executeCommand ? "1-" : "0-") +
                 (isTimerLifeCycleChanged ? "1" : "0");
         response.setStatus(sb);
+    }
+
+    public void genId(){
+        response.setId((short) new Random().nextInt(Short.MAX_VALUE));
     }
 }
