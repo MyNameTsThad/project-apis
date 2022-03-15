@@ -12,6 +12,8 @@ public class StatusResponse {
     private String status; //format: "CONTROLLING_TIMER_CHANGED-EXECUTE_COMMAND-TIMER_LIFECYCLE_CHANGED"
 
     public StatusResponse() {
+        this.id = (short) new Random().nextInt(Short.MAX_VALUE);
+        this.status = "";
     }
 
     public StatusResponse(String status) {

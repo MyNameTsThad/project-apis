@@ -55,6 +55,7 @@ public class TimerAPIController {
     public Timer newTimer(@RequestBody Timer newTimer) {
         if (newTimer.getLengthTime() > 0) {
             Timer saved = timerRepository.save(newTimer);
+            ProjectApisApplication.instance.logger.info("Saved new Timer: " + newTimer.getId() + " length: " + newTimer.getLengthTime());
             new Thread("saveToFile") {
                 @Override
                 public void run() {

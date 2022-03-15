@@ -32,6 +32,7 @@ public class CommandAPIController {
     @DeleteMapping("/api-v1/computercontrol/clearstack")
     private void clearCommandStack(){
         stack.deleteAll();
+        ProjectApisApplication.instance.logger.info("Deleted all commands in the stack");
         ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
     }
 
@@ -39,6 +40,7 @@ public class CommandAPIController {
     private void deleteCommand(@RequestParam int id){
         if ((Object) stack.findById(id) != Optional.empty()){
             stack.deleteById(id);
+            ProjectApisApplication.instance.logger.info("Command deleted by ID: " + id);
             ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
         }else{
             throw new CommandNotFoundException(id);
@@ -56,10 +58,10 @@ public class CommandAPIController {
 
     @PostMapping("/api-v1/computercontrol/add")
     private Command addCommand(@RequestBody Command newCommand){
-        if (newCommand.getExecCommand().isBlank() || newCommand.getExecCommand().isEmpty()){
+        if (newCommand.getExecCommand().isBlank() || newCommand.getExecCommand().isEmpty())
             throw new EmptyCommandException(newCommand.getId());
-        }
         Command command = stack.save(newCommand);
+        ProjectApisApplication.instance.logger.info("Command added: " + newCommand.getExecCommand());
         ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand(true);
         return command;
     }

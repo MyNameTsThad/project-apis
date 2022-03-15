@@ -1,14 +1,11 @@
 package xyz.thaddev.projectapis.timersystem;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import xyz.thaddev.projectapis.PermissionDeniedException;
 import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.timersystem.exceptions.TimerNotFoundException;
@@ -36,7 +33,8 @@ public class TimerInstanceAPIController {
 
         if (isComputerControl) disableAllControllingTimers();
         TimerInstance timerInstance = timerInstanceRepository.save(new TimerInstance(timer, isComputerControl));
-        ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
+        ProjectApisApplication.instance.logger.info("TimerInstance created with base timer ID: " + timerId + " with ID: " + timerInstance.getId());
+        if (isComputerControl) ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
         return timerInstance;
     }
 
@@ -63,6 +61,7 @@ public class TimerInstanceAPIController {
                 .map(timerInstance -> {
                     timerInstance.setPaused(true);
                     TimerInstance updated = timerInstanceRepository.save(timerInstance);
+                    ProjectApisApplication.instance.logger.info("Timer instance ID: " + id + " paused.");
                     if (timerInstance.isComputerControl()) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged(true);
                     return updated;
                 })
@@ -75,6 +74,7 @@ public class TimerInstanceAPIController {
                 .map(timerInstance -> {
                     timerInstance.setPaused(false);
                     TimerInstance updatedInstance = timerInstanceRepository.save(timerInstance);
+                    ProjectApisApplication.instance.logger.info("Timer instance ID: " + id + " started.");
                     if (timerInstance.isComputerControl()) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged(true);
                     return updatedInstance;
                 })
@@ -88,6 +88,7 @@ public class TimerInstanceAPIController {
                     if (computerControl) disableAllControllingTimers();
                     timerInstance.setComputerControl(computerControl);
                     TimerInstance saved = timerInstanceRepository.save(timerInstance);
+                    ProjectApisApplication.instance.logger.info("Timer instance ID: " + id + " set to be computerControl.");
                     ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
                     return saved;
                 })
@@ -98,8 +99,9 @@ public class TimerInstanceAPIController {
     private void deleteTimerInstance(@RequestParam int id) {
         if ((Object) timerInstanceRepository.findById(id) != Optional.empty()) {
             if (timerInstanceRepository.findById(id).isPresent() && timerInstanceRepository.findById(id).get().isComputerControl())
-                ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);;
+                ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
             timerInstanceRepository.deleteById(id);
+            ProjectApisApplication.instance.logger.info("Timer instance ID: " + id + " deleted.");
         } else {
             throw new TimerNotFoundException(id, true);
         }
@@ -109,6 +111,7 @@ public class TimerInstanceAPIController {
     private void deleteAll(@RequestParam String authPassword) {
         if (authPassword.equals(ProjectApisApplication.authPassword)) {
             timerInstanceRepository.deleteAll();
+            ProjectApisApplication.instance.logger.info("All timer instances deleted.");
             ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
         } else {
             throw new PermissionDeniedException();
@@ -123,6 +126,7 @@ public class TimerInstanceAPIController {
                     .map(timerInstance -> {
                         timerInstance.setComputerControl(false);
                         TimerInstance saved = timerInstanceRepository.save(timerInstance);
+                        ProjectApisApplication.instance.logger.info("All TimerInstances set to be not computerControl.");
                         ProjectApisApplication.instance.getStatusResponseManager().setControllingTimerChanged(true);
                         return saved;
                     });
