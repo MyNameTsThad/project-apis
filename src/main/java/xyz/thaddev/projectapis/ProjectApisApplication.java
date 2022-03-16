@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import xyz.thaddev.projectapis.chatthreadsystem.ThreadAPIController;
 import xyz.thaddev.projectapis.computercontrolsystem.CommandAPIController;
 import xyz.thaddev.projectapis.computercontrolsystem.StatusResponseManager;
@@ -35,6 +37,11 @@ public class ProjectApisApplication {
 	public ProjectApisApplication() throws IOException {
 		instance = this;
 		new StatusResponseManager();
+	}
+
+	@EventListener(ApplicationReadyEvent.class)
+	public void startUp() {
+		logger.info("Starting TickAll...");
 		new Timer("TickAll").scheduleAtFixedRate(new TimerTask() {
 			int times = 0;
 			@Override
