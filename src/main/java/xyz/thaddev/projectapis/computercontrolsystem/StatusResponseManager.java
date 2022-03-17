@@ -20,9 +20,10 @@ public class StatusResponseManager {
     }
 
     public void clear() {
-        setControllingTimerChanged(false);
-        setExecuteCommand(false);
-        setTimerLifeCycleChanged(false);
+        isControllingTimerChanged = false;
+        executeCommand = false;
+        isTimerLifeCycleChanged = false;
+        response = new StatusResponse();
     }
 
     public StatusResponse getResponse() {
@@ -34,8 +35,9 @@ public class StatusResponseManager {
         return isControllingTimerChanged;
     }
 
-    public void setControllingTimerChanged(boolean controllingTimerChanged) {
-        isControllingTimerChanged = controllingTimerChanged;
+    public void setControllingTimerChanged() {
+        isControllingTimerChanged = true;
+        ProjectApisApplication.instance.logger.info("Controlling timer changed");
         setResponse();
     }
 
@@ -43,8 +45,9 @@ public class StatusResponseManager {
         return executeCommand;
     }
 
-    public void setExecuteCommand(boolean executeCommand) {
-        this.executeCommand = executeCommand;
+    public void setExecuteCommand() {
+        this.executeCommand = true;
+        ProjectApisApplication.instance.logger.info("New command received");
         setResponse();
     }
 
@@ -52,8 +55,9 @@ public class StatusResponseManager {
         return isTimerLifeCycleChanged;
     }
 
-    public void setTimerLifeCycleChanged(boolean timerLifeCycleChanged) {
-        isTimerLifeCycleChanged = timerLifeCycleChanged;
+    public void setTimerLifeCycleChanged() {
+        isTimerLifeCycleChanged = true;
+        ProjectApisApplication.instance.logger.info("Timer life cycle changed");
         setResponse();
     }
 
@@ -61,6 +65,7 @@ public class StatusResponseManager {
         String sb = (isControllingTimerChanged ? "1-" : "0-") +
                 (executeCommand ? "1-" : "0-") +
                 (isTimerLifeCycleChanged ? "1" : "0");
+        ProjectApisApplication.instance.logger.info("Set response to: " + sb);
         response.setStatus(sb);
     }
 
