@@ -24,6 +24,7 @@ public class StatusResponseManager {
         executeCommand = false;
         isTimerLifeCycleChanged = false;
         response = new StatusResponse();
+        setResponse();
     }
 
     public StatusResponse getResponse() {
