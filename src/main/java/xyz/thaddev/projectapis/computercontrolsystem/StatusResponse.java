@@ -13,7 +13,7 @@ public class StatusResponse {
 
     public StatusResponse() {
         this.id = (short) new Random().nextInt(Short.MAX_VALUE);
-        this.status = "";
+        this.status = "0-0-0";
     }
 
     public StatusResponse(String status) {
