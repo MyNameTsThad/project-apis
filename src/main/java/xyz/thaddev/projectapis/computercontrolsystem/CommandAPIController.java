@@ -26,14 +26,16 @@ public class CommandAPIController {
 
     @GetMapping("/api-v1/computercontrol/getstack")
     private List<Command> getCommandStack(){
-        return stack.findAll();
+        List<Command> commands = stack.findAll();
+        clearCommandStack();
+        return commands;
     }
 
     @DeleteMapping("/api-v1/computercontrol/clearstack")
     private void clearCommandStack(){
         stack.deleteAll();
         ProjectApisApplication.instance.logger.info("Deleted all commands in the stack");
-        ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand();
+        //ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand();
     }
 
     @DeleteMapping("/api-v1/computercontrol/delete")
