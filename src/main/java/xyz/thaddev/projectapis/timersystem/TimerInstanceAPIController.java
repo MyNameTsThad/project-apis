@@ -143,10 +143,10 @@ public class TimerInstanceAPIController {
                             timerInstance.setTimePaused(timerInstance.getTimePaused() + 1000);
                             timerInstance.setEndTime(timerInstance.getEndTime() + 1000);
                             TimerInstance saved = timerInstanceRepository.save(timerInstance);
-                            if (is10thSecond && getCurrentControllingTimerInstance() != null) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged();
                             return saved;
                         });
             }
+            if (is10thSecond && getCurrentControllingTimerInstance() != null) ProjectApisApplication.instance.getStatusResponseManager().setTimerLifeCycleChanged();
         }
     }
 }
