@@ -10,6 +10,7 @@ import xyz.thaddev.projectapis.ProjectApisApplication;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.CommandNotFoundException;
 import xyz.thaddev.projectapis.computercontrolsystem.exceptions.EmptyCommandException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,27 +40,33 @@ public class CommandAPIController {
     }
 
     @DeleteMapping("/api-v1/computercontrol/delete")
-    private void deleteCommand(@RequestParam int id){
-        if ((Object) stack.findById(id) != Optional.empty()){
+    private void deleteCommand(@RequestParam int id) {
+        if ((Object) stack.findById(id) != Optional.empty()) {
             stack.deleteById(id);
             ProjectApisApplication.instance.logger.info("Command deleted by ID: " + id);
             ProjectApisApplication.instance.getStatusResponseManager().setExecuteCommand();
-        }else{
+        } else {
             throw new CommandNotFoundException(id);
         }
     }
 
-    //controlling
-
     @GetMapping("/api-v1/computercontrol/ping")
-    private StatusResponse controllerPing(){
+    private StatusResponse controllerPing(HttpServletRequest request) {
         StatusResponse statusResponse = ProjectApisApplication.instance.getStatusResponseManager().getResponse();
         ProjectApisApplication.instance.getStatusResponseManager().clear();
+        ProjectApisApplication.instance.getStatusResponseManager().connectedDevicesPing(request.getRemoteAddr());
         return statusResponse;
     }
 
+    //controlling
+
+    @GetMapping("/api-v1/computercontrol/getcontrolled")
+    private int getControlledDevices() {
+        return ProjectApisApplication.instance.getStatusResponseManager().getConnectedDevicesSize();
+    }
+
     @PostMapping("/api-v1/computercontrol/add")
-    private Command addCommand(@RequestBody Command newCommand){
+    private Command addCommand(@RequestBody Command newCommand) {
         if (newCommand.getExecCommand().isBlank() || newCommand.getExecCommand().isEmpty())
             throw new EmptyCommandException(newCommand.getId());
         Command command = stack.save(newCommand);
