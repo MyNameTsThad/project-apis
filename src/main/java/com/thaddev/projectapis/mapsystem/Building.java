@@ -2,6 +2,7 @@ package com.thaddev.projectapis.mapsystem;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,14 +26,15 @@ public class Building {
     private String name;
     private BuildingTypes type;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "building", cascade = CascadeType.ALL)
     private List<POI> pois;
 
-    public Building(double startX, double startY, double endX, double endY, String name, BuildingTypes type) {
+    public Building(double startX, double startY, double endX, double endY, int height, String name, BuildingTypes type) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
+        this.height = height;
         this.name = name;
         this.type = type;
     }
@@ -106,7 +108,7 @@ public class Building {
 
     public void addPoi(POI poi) {
         if (this.isInside(poi.getX(), poi.getY())) {
-            poi.setBuildingId(id);
+            poi.setBuilding(this);
             this.pois.add(poi);
         }
     }
@@ -121,7 +123,7 @@ public class Building {
 
     public void setPois(List<POI> pois) {
         for (POI poi : pois) {
-            poi.setBuildingId(id);
+            poi.setBuilding(this);
         }
         this.pois = pois;
     }

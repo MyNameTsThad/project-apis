@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.Objects;
 
 @Entity
@@ -13,16 +15,27 @@ public class POI {
     private int id;
 
     private String name;
-    private int buildingId;
     private int level;
     private POITypes type;
 
     private double x;
     private double y;
 
-    public POI(String name, int buildingId, double x, double y, POITypes type) {
+    @ManyToOne
+    @JoinColumn(name = "building_id")
+    private Building building;
+
+    public Building getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(Building building) {
+        this.building = building;
+    }
+
+    public POI(String name, Building building, double x, double y, POITypes type) {
         this.name = name;
-        this.buildingId = buildingId;
+        this.building = building;
         this.x = x;
         this.y = y;
     }
@@ -40,14 +53,6 @@ public class POI {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getBuildingId() {
-        return buildingId;
-    }
-
-    public void setBuildingId(int buildingId) {
-        this.buildingId = buildingId;
     }
 
     public POITypes getType() {
@@ -87,12 +92,12 @@ public class POI {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         POI poi = (POI) o;
-        return id == poi.id && buildingId == poi.buildingId && Double.compare(poi.x, x) == 0 && Double.compare(poi.y, y) == 0 && Objects.equals(name, poi.name) && type == poi.type;
+        return id == poi.id && level == poi.level && Double.compare(poi.x, x) == 0 && Double.compare(poi.y, y) == 0 && Objects.equals(name, poi.name) && type == poi.type && Objects.equals(building, poi.building);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, buildingId, type, x, y);
+        return Objects.hash(id, name, level, type, x, y, building);
     }
 
     @Override
@@ -100,10 +105,11 @@ public class POI {
         return "POI{" +
             "id=" + id +
             ", name='" + name + '\'' +
-            ", buildingId=" + buildingId +
+            ", level=" + level +
             ", type=" + type +
             ", x=" + x +
             ", y=" + y +
+            ", building=" + building +
             '}';
     }
 }
