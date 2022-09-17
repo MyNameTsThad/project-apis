@@ -20,9 +20,9 @@ import java.util.TimerTask;
 
 @SpringBootApplication
 public class ProjectApisApplication {
-    public static final String authPassword = "<Password>";
-    public static final String computerControlAuthPassword = "<Password>";
-    public static final String githubAuth = "<AuthToken>";
+    public static final String authPassword = System.getenv("PAPI_AUTH_PASSWORD");
+    public static final String computerControlAuthPassword = System.getenv("PAPI_COMPUTER_CONTROL_AUTH_PASSWORD");
+    public static final String githubAuth = System.getenv("PAPI_GITHUB_AUTH");
     public static ProjectApisApplication instance;
 
     public Logger logger = LoggerFactory.getLogger(ProjectApisApplication.class);

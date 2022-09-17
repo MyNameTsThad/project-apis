@@ -120,7 +120,7 @@ enum POITypes {
     TRASH_CAN,
     RESTROOM_MEN,
     RESTROOM_WOMEN,
-    OTHER;
+    WAYPOINT;
 
     public static POITypes getFromID(int id) {
         return POITypes.values()[id];
