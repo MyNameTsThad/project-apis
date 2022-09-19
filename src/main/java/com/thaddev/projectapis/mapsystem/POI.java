@@ -1,11 +1,11 @@
 package com.thaddev.projectapis.mapsystem;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -18,24 +18,14 @@ public class POI {
     private int level;
     private POITypes type;
 
+    @ElementCollection
+    private Map<POI, Integer> distances;
+
     private double x;
     private double y;
 
-    @ManyToOne
-    @JoinColumn(name = "building_id")
-    private Building building;
-
-    public Building getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(Building building) {
-        this.building = building;
-    }
-
-    public POI(String name, Building building, double x, double y, POITypes type) {
+    public POI(String name, double x, double y, POITypes type) {
         this.name = name;
-        this.building = building;
         this.x = x;
         this.y = y;
     }
@@ -87,17 +77,25 @@ public class POI {
         this.level = level;
     }
 
+    public Map<POI, Integer> getDistances() {
+        return distances;
+    }
+
+    public void setDistances(Map<POI, Integer> distances) {
+        this.distances = distances;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         POI poi = (POI) o;
-        return id == poi.id && level == poi.level && Double.compare(poi.x, x) == 0 && Double.compare(poi.y, y) == 0 && Objects.equals(name, poi.name) && type == poi.type && Objects.equals(building, poi.building);
+        return id == poi.id && level == poi.level && Double.compare(poi.x, x) == 0 && Double.compare(poi.y, y) == 0 && Objects.equals(name, poi.name) && type == poi.type && Objects.equals(distances, poi.distances);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, level, type, x, y, building);
+        return Objects.hash(id, name, level, type, x, y, distances);
     }
 
     @Override
@@ -107,9 +105,9 @@ public class POI {
             ", name='" + name + '\'' +
             ", level=" + level +
             ", type=" + type +
+            ", distances=" + distances +
             ", x=" + x +
             ", y=" + y +
-            ", building=" + building +
             '}';
     }
 }

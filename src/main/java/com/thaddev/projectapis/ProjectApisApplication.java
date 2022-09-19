@@ -3,7 +3,7 @@ package com.thaddev.projectapis;
 import com.thaddev.projectapis.chatthreadsystem.ThreadAPIController;
 import com.thaddev.projectapis.computercontrolsystem.CommandAPIController;
 import com.thaddev.projectapis.computercontrolsystem.StatusResponseManager;
-import com.thaddev.projectapis.mapsystem.BuildingAPIController;
+import com.thaddev.projectapis.mapsystem.POIAPIController;
 import com.thaddev.projectapis.statssystem.CodingStatsAPIController;
 import com.thaddev.projectapis.statssystem.CodingStatsManager;
 import com.thaddev.projectapis.timersystem.TimerAPIController;
@@ -34,7 +34,7 @@ public class ProjectApisApplication {
     private StatusResponseManager statusResponseManager;
     private CodingStatsAPIController codingStatsAPIController;
     private CodingStatsManager codingStatsManager;
-    private BuildingAPIController buildingAPIController;
+    private POIAPIController POIAPIController;
 
     public static void main(String[] args) {
         SpringApplication.run(ProjectApisApplication.class, args);
@@ -118,11 +118,11 @@ public class ProjectApisApplication {
         this.codingStatsManager = codingStatsManager;
     }
 
-    public BuildingAPIController getBuildingAPIController() {
-        return buildingAPIController;
+    public POIAPIController getBuildingAPIController() {
+        return POIAPIController;
     }
 
-    public void setBuildingAPIController(BuildingAPIController buildingAPIController) {
-        this.buildingAPIController = buildingAPIController;
+    public void setBuildingAPIController(POIAPIController POIAPIController) {
+        this.POIAPIController = POIAPIController;
     }
 }

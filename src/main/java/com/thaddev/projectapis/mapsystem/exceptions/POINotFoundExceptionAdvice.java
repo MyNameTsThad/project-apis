@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class POINotFoundExceptionAdvice {
     @ResponseBody
-    @ExceptionHandler(BuildingNotFoundException.class)
+    @ExceptionHandler(POINotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     String poiNotFoundHandler(POINotFoundException ex) {
         return ex.getMessage();
