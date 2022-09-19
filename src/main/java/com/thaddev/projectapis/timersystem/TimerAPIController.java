@@ -151,11 +151,11 @@ public class TimerAPIController {
     public void saveToFile() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllTimers());
-        File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+        File path = new File("/projectapis/db/TimerRepository-current.json");
         FileOutputStream file = FileUtils.openOutputStream(path);
         try {
             file.write(json.getBytes());
-            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Saved Timer Repository to: " + "/projectapis/db/TimerRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -170,14 +170,14 @@ public class TimerAPIController {
 
     public void readFromFile() throws IOException {
         try {
-            File path = new File(System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+            File path = new File("/projectapis/db/TimerRepository-current.json");
             String json = FileUtils.readFileToString(path);
 
             List<Timer> result = new Gson().fromJson(json, new TypeToken<List<Timer>>() {}.getType());
             timerRepository.saveAll(result);
-            ProjectApisApplication.instance.logger.info("Loaded Timer Repository from: " + System.getProperty("user.home") + "/projectapis/db/TimerRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Loaded Timer Repository from: " + "/projectapis/db/TimerRepository-current.json");
         }catch (IOException e){
-            if (e.getMessage().equals("File '/home/iwant2tryhard/projectapis/db/TimerRepository-current.json' does not exist")){
+            if (e.getMessage().equals("File '/projectapis/db/TimerRepository-current.json' does not exist")) {
                 ProjectApisApplication.instance.logger.warn("Storage Files not found; Creating empty files.");
                 saveToFile();
                 ProjectApisApplication.instance.logger.info("Successfully Created Storage files.");

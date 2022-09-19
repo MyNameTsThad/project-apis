@@ -137,15 +137,15 @@ public class POIAPIController {
 
     public void readPOIsFromFile() throws IOException {
         try {
-            File path = new File(System.getProperty("user.home") + "/projectapis/db/POIRepository-current.json");
+            File path = new File("/projectapis/db/POIRepository-current.json");
             String json = FileUtils.readFileToString(path);
 
             List<POI> result = new Gson().fromJson(json, new TypeToken<List<POI>>() {
             }.getType());
             poiRepostory.saveAll(result);
-            ProjectApisApplication.instance.logger.info("Loaded POI Repository from: " + System.getProperty("user.home") + "/projectapis/db/POIRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Loaded POI Repository from: " + "/projectapis/db/POIRepository-current.json");
         } catch (IOException e) {
-            if (e.getMessage().equals("File '/home/iwant2tryhard/projectapis/db/POIRepository-current.json' does not exist")) {
+            if (e.getMessage().equals("File '/projectapis/db/POIRepository-current.json' does not exist")) {
                 ProjectApisApplication.instance.logger.warn("Storage Files not found; Creating empty files.");
                 savePOIsToFile();
                 ProjectApisApplication.instance.logger.info("Successfully Created Storage files.");
@@ -156,11 +156,11 @@ public class POIAPIController {
     public void savePOIsToFile() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(getAllPOIs());
-        File path = new File(System.getProperty("user.home") + "/projectapis/db/POIRepository-current.json");
+        File path = new File("/projectapis/db/POIRepository-current.json");
         FileOutputStream file = FileUtils.openOutputStream(path);
         try {
             file.write(json.getBytes());
-            ProjectApisApplication.instance.logger.info("Saved POI Repository to: " + System.getProperty("user.home") + "/projectapis/db/POIRepository-current.json");
+            ProjectApisApplication.instance.logger.info("Saved POI Repository to: " + "/projectapis/db/POIRepository-current.json");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
