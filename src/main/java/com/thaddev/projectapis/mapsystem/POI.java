@@ -85,6 +85,10 @@ public class POI {
         this.distances = distances;
     }
 
+    public void addDistance(POI poi, int distance) {
+        distances.put(poi, distance);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,7 +117,6 @@ public class POI {
 }
 
 enum POITypes {
-    STAIRS,
     WATER_DISPENER,
     TRASH_CAN,
     RESTROOM_MEN,

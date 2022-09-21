@@ -90,6 +90,33 @@ public class POIAPIController {
             .orElseThrow(() -> new POINotFoundException(id));
     }
 
+    @PatchMapping("/api-v1/locator/linkpoi")
+    public POI linkPOI(@RequestParam int id1, @RequestParam int id2, @RequestParam int distance) {
+        return poiRepostory.findById(id1)
+            .map(poi1 ->
+                poiRepostory.findById(id2)
+                    .map(poi2 -> {
+                        poi1.addDistance(poi2, distance);
+                        poi2.addDistance(poi1, distance);
+                        POI saved = poiRepostory.save(poi1);
+                        poiRepostory.save(poi2);
+
+                        new Thread("saveToFile") {
+                            @Override
+                            public void run() {
+                                try {
+                                    savePOIsToFile();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }.start();
+                        return saved;
+                    })
+                    .orElseThrow(() -> new POINotFoundException(id2))
+            ).orElseThrow(() -> new POINotFoundException(id1));
+    }
+
     @PatchMapping("/api-v1/locator/renamepoi")
     public POI renamePOI(@RequestBody String newName, @RequestParam int id) {
         return poiRepostory.findById(id)
@@ -133,6 +160,22 @@ public class POIAPIController {
         } else {
             throw new PermissionDeniedException();
         }
+    }
+
+    @GetMapping("/api-v1/locator/shortest")
+    public POI getShortestPOIFromPos(@RequestParam POITypes targetType, @RequestParam double posX, @RequestParam double posY) {
+        POI shortest = null;
+        double shortestDist = Double.MAX_VALUE;
+        for (POI poi : getAllPOIs()) {
+            if (poi.getType() == targetType) {
+                double dist = Math.sqrt(Math.pow(poi.getX() - posX, 2) + Math.pow(poi.getY() - posY, 2));
+                if (dist < shortestDist) {
+                    shortest = poi;
+                    shortestDist = dist;
+                }
+            }
+        }
+        return shortest;
     }
 
     public void readPOIsFromFile() throws IOException {
