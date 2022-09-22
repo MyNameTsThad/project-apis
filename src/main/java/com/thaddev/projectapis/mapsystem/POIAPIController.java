@@ -90,32 +90,32 @@ public class POIAPIController {
             .orElseThrow(() -> new POINotFoundException(id));
     }
 
-    @PatchMapping("/api-v1/locator/linkpoi")
-    public POI linkPOI(@RequestParam int id1, @RequestParam int id2, @RequestParam int distance) {
-        return poiRepostory.findById(id1)
-            .map(poi1 ->
-                poiRepostory.findById(id2)
-                    .map(poi2 -> {
-                        poi1.addDistance(poi2, distance);
-                        poi2.addDistance(poi1, distance);
-                        POI saved = poiRepostory.save(poi1);
-                        poiRepostory.save(poi2);
-
-                        new Thread("saveToFile") {
-                            @Override
-                            public void run() {
-                                try {
-                                    savePOIsToFile();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }.start();
-                        return saved;
-                    })
-                    .orElseThrow(() -> new POINotFoundException(id2))
-            ).orElseThrow(() -> new POINotFoundException(id1));
-    }
+//    @PatchMapping("/api-v1/locator/linkpoi")
+//    public POI linkPOI(@RequestParam int id1, @RequestParam int id2, @RequestParam int distance) {
+//        return poiRepostory.findById(id1)
+//            .map(poi1 ->
+//                poiRepostory.findById(id2)
+//                    .map(poi2 -> {
+//                        poi1.addDistance(poi2, distance);
+//                        poi2.addDistance(poi1, distance);
+//                        POI saved = poiRepostory.save(poi1);
+//                        poiRepostory.save(poi2);
+//
+//                        new Thread("saveToFile") {
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                    savePOIsToFile();
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }.start();
+//                        return saved;
+//                    })
+//                    .orElseThrow(() -> new POINotFoundException(id2))
+//            ).orElseThrow(() -> new POINotFoundException(id1));
+//    }
 
     @PatchMapping("/api-v1/locator/renamepoi")
     public POI renamePOI(@RequestBody String newName, @RequestParam int id) {
