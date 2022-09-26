@@ -116,7 +116,7 @@ public class POI {
 }
 
 enum POITypes {
-    WATER_DISPENER,
+    WATER_DISPENSER,
     TRASH_CAN,
     RESTROOM_MEN,
     RESTROOM_WOMEN,
