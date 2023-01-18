@@ -4,6 +4,8 @@ import com.thaddev.projectapis.chatthreadsystem.ThreadAPIController;
 import com.thaddev.projectapis.computercontrolsystem.CommandAPIController;
 import com.thaddev.projectapis.computercontrolsystem.StatusResponseManager;
 import com.thaddev.projectapis.mapsystem.POIAPIController;
+import com.thaddev.projectapis.postviewscounter.PostViewsAPIController;
+import com.thaddev.projectapis.postviewscounter.PostViewsCounter;
 import com.thaddev.projectapis.statssystem.CodingStatsAPIController;
 import com.thaddev.projectapis.statssystem.CodingStatsManager;
 import com.thaddev.projectapis.timersystem.TimerAPIController;
@@ -35,6 +37,9 @@ public class ProjectApisApplication {
     private CodingStatsAPIController codingStatsAPIController;
     private CodingStatsManager codingStatsManager;
     private POIAPIController POIAPIController;
+    private PostViewsAPIController postViewsAPIController;
+    private PostViewsCounter postViewsCounter;
+
 
     public static void main(String[] args) {
         SpringApplication.run(ProjectApisApplication.class, args);
@@ -124,5 +129,21 @@ public class ProjectApisApplication {
 
     public void setBuildingAPIController(POIAPIController POIAPIController) {
         this.POIAPIController = POIAPIController;
+    }
+
+    public PostViewsAPIController getPostViewsAPIController() {
+        return postViewsAPIController;
+    }
+
+    public void setPostViewsAPIController(PostViewsAPIController postViewsAPIController) {
+        this.postViewsAPIController = postViewsAPIController;
+    }
+
+    public PostViewsCounter getPostViewsCounter() {
+        return postViewsCounter;
+    }
+
+    public void setPostViewsCounter(PostViewsCounter postViewsCounter) {
+        this.postViewsCounter = postViewsCounter;
     }
 }
