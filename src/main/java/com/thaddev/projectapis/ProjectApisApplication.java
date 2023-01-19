@@ -49,6 +49,7 @@ public class ProjectApisApplication {
         instance = this;
         new StatusResponseManager();
         new CodingStatsManager();
+        new PostViewsCounter();
         getCodingStatsManager().setHackerrankResponse(3, 5, 225);
     }
 
