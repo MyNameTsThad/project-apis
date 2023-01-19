@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class PostViewsCounter {
     HashMap<Integer, Integer> postViews = new HashMap<>();
@@ -21,6 +22,10 @@ public class PostViewsCounter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<Integer, Integer> getAllPostViews() {
+        return postViews;
     }
 
     public int getPostViews(int strapiID) {

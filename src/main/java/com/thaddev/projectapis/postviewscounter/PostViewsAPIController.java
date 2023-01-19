@@ -6,9 +6,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Map;
+
 public class PostViewsAPIController {
     public PostViewsAPIController() {
         ProjectApisApplication.instance.setPostViewsAPIController(this);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/api-v1/postviews/getall")
+    private Map<Integer, Integer> getAllPostViews() {
+        return ProjectApisApplication.instance.getPostViewsCounter().getAllPostViews();
     }
 
     @CrossOrigin(origins = "*")
