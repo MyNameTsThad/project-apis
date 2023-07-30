@@ -67,7 +67,7 @@ class CodingStats:
     def toDict(self):
         return {
             'githubStats': self.githubStats.__dict__,
-            'hackerRankStats': self.hackerRankStats.__dict__,
+            'hackerrankStats': self.hackerRankStats.__dict__,
             'leetcodeStats': self.leetcodeStats.__dict__
         }
 
