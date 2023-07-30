@@ -4,8 +4,6 @@ import requests
 import os
 
 from flask import Flask, request, jsonify
-from threading import Timer
-from functools import partial
 
 app = Flask(__name__)
 
@@ -74,50 +72,6 @@ class CodingStats:
         }
 
 
-# https://gist.github.com/bbengfort/a7d46013f39cf367daa5
-class Interval(object):
-
-    def __init__(self, interval, function, args=[], kwargs={}):
-        """
-        Runs the function at a specified interval with given arguments.
-        """
-        self.interval = interval
-        self.function = partial(function, *args, **kwargs)
-        self.running = False
-        self._timer = None
-
-    def __call__(self):
-        """
-        Handler function for calling the partial and continuting.
-        """
-        self.running = False  # mark not running
-        self.start()  # reset the timer for the next go
-        self.function()  # call the partial function
-
-    def start(self):
-        """
-        Starts the interval and lets it run.
-        """
-        if self.running:
-            # Don't start if we're running!
-            return
-
-            # Create the timer object, start and set state.
-        self.function()  # execute now
-        self._timer = Timer(self.interval, self)
-        self._timer.start()
-        self.running = True
-
-    def stop(self):
-        """
-        Cancel the interval (no more function calls).
-        """
-        if self._timer:
-            self._timer.cancel()
-        self.running = False
-        self._timer = None
-
-
 response = CodingStats(
     GithubStats(0, 0, 0, 0, 0, 0),
     HackerRankStats(3, 5, 225),
@@ -126,7 +80,7 @@ response = CodingStats(
 
 
 # fetch job for response
-def fetchStats(start):
+def fetchStats():
     print("Fetching stats...")
     timeStart = time.time()
     githubResponse = requests.request("POST", githubUrl, data=githubPayload, headers=githubHeaders).json()['data']
@@ -152,6 +106,7 @@ def fetchStats(start):
 
 @app.route('/api-v1/codingstats/get', methods=['GET'])
 def getCodingStats():
+    fetchStats()
     return json.dumps(response.toDict())
 
 
