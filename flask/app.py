@@ -107,9 +107,7 @@ def fetchStats():
 @app.route('/api-v1/codingstats/get', methods=['GET'])
 def getCodingStats():
     fetchStats()
-    result = jsonify(response.toDict())
-    result.headers.add('Access-Control-Allow-Origin', '*')
-    return result
+    return jsonify(response.toDict())
 
 
 @app.route("/api-v1/codingstats/sethr", methods=['POST'])
@@ -130,9 +128,7 @@ def info():
         'user-agent': request.headers['User-Agent']
     }
 
-    result = jsonify(resp)
-    result.headers.add('Access-Control-Allow-Origin', '*')
-    return result
+    return jsonify(resp)
 
 
 @app.route('/api-v1/flask-health-check')
