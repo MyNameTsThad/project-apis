@@ -3,7 +3,7 @@ import time
 import requests
 import os
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from threading import Timer
 from functools import partial
 
@@ -130,18 +130,22 @@ def fetchStats(start):
     print("Fetching stats...")
     timeStart = time.time()
     githubResponse = requests.request("POST", githubUrl, data=githubPayload, headers=githubHeaders).json()['data']
-    leetCodeResponse = requests.request("POST", leetCodeUrl, data=leetCodePayload, headers=leetCodeHeaders).json()['data']
+    leetCodeResponse = requests.request("POST", leetCodeUrl, data=leetCodePayload, headers=leetCodeHeaders).json()[
+        'data']
     response.githubStats.followers = githubResponse['user']['followers']['totalCount']
     response.githubStats.projects = githubResponse['user']['repositories']['totalCount']
-    response.githubStats.stars = sum([project['stargazerCount'] for project in githubResponse['user']['repositories']['nodes']])
+    response.githubStats.stars = sum(
+        [project['stargazerCount'] for project in githubResponse['user']['repositories']['nodes']])
     response.githubStats.commits = githubResponse['user']['contributionsCollection']['totalCommitContributions']
     response.githubStats.pulls = githubResponse['user']['contributionsCollection']['totalPullRequestContributions']
-    response.githubStats.contribs = githubResponse['user']['contributionsCollection']['totalRepositoriesWithContributedCommits']
+    response.githubStats.contribs = githubResponse['user']['contributionsCollection'][
+        'totalRepositoriesWithContributedCommits']
     response.leetcodeStats.rank = leetCodeResponse['matchedUser']['profile']['ranking']
     response.leetcodeStats.contests = leetCodeResponse['userContestRanking']['attendedContestsCount']
     response.leetcodeStats.contestRating = leetCodeResponse['userContestRanking']['rating']
     response.leetcodeStats.contestGlobalRanking = leetCodeResponse['userContestRanking']['globalRanking']
-    response.leetcodeStats.problems = sum([submission['count'] for submission in leetCodeResponse['matchedUser']['submitStatsGlobal']['acSubmissionNum']])
+    response.leetcodeStats.problems = sum(
+        [submission['count'] for submission in leetCodeResponse['matchedUser']['submitStatsGlobal']['acSubmissionNum']])
     response.leetcodeStats.topContestRanking = leetCodeResponse['userContestRanking']['topPercentage']
     print("Fetched stats in " + str(time.time() - timeStart) + " seconds.")
 
@@ -153,16 +157,25 @@ def getCodingStats():
 
 @app.route("/api-v1/codingstats/sethr", methods=['POST'])
 def setHackerRankStats():
-    data = request.json
-    response.hackerRankStats.badges = data['badges']
-    response.hackerRankStats.skills = data['skills']
-    response.hackerRankStats.questions = data['questions']
+    if request.args['password'] == os.environ.get('PAPI_AUTH_PASSWORD'):
+        data = request.json
+        response.hackerRankStats.badges = data['badges']
+        response.hackerRankStats.skills = data['skills']
+        response.hackerRankStats.questions = data['questions']
 
 
-if __name__ == '__main__':
-    # Create an interval.
-    interval = Interval(3600, fetchStats, args=[time.time(), ])
-    print("Starting Interval, press CTRL+C to stop.")
-    interval.start()
-    app.run()
-    interval.stop()
+@app.route('/api-v1/info')
+def info():
+    resp = {
+        'connecting_ip': request.headers['X-Real-IP'],
+        'proxy_ip': request.headers['X-Forwarded-For'],
+        'host': request.headers['Host'],
+        'user-agent': request.headers['User-Agent']
+    }
+
+    return jsonify(resp)
+
+
+@app.route('/api-v1/flask-health-check')
+def flask_health_check():
+    return "success"
